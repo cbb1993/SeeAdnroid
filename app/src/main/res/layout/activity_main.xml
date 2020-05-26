@@ -9,15 +9,30 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:onClick="aop"
-            android:text="Aop"
-            android:padding="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:padding="10dp"
+            android:text="Aop" />
+
         <View
-            android:background="#999"
             android:layout_width="match_parent"
-            android:layout_height="1dp"/>
+            android:layout_height="1dp"
+            android:background="#999" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="db"
+            android:padding="10dp"
+            android:text="DB" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#999" />
 
     </LinearLayout>
 </ScrollView>

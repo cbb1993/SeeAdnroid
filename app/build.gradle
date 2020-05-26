@@ -82,6 +82,9 @@ dependencies {
 
     //使用aspectj框架
     implementation 'org.aspectj:aspectjrt:1.8.9'
+    implementation project(path: ':mydb')
+
+    implementation 'com.yanzhenjie:permission:2.0.0-rc4'
 }
 
 
