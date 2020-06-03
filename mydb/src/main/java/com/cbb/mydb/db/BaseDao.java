@@ -10,8 +10,10 @@ import com.cbb.mydb.annotation.DbField;
 import com.cbb.mydb.annotation.DbTable;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -143,6 +145,82 @@ public class BaseDao<T> implements IBaseDao<T> {
         return insert;
     }
 
+    @Override
+    public long update(T entity, T where) {
+        HashMap<String, String> values = getEntityValues(entity);
+        ContentValues contentValues = getContentValues(values);
+        Condition condition = new Condition(where);
+        int update = database.update(tableName, contentValues, condition.whereClause, condition.whereArgs);
+        return update;
+    }
+
+    @Override
+    public int delete(T where) {
+        Condition condition = new Condition(where);
+        int delete = database.delete(tableName, condition.whereClause, condition.whereArgs);
+        return delete;
+    }
+
+    @Override
+    public List<T> query(T where) {
+        return query(where,null,1,100);
+    }
+
+    @Override
+    public List<T> query(T where, String orderBy, Integer startIndex, Integer limit) {
+        String limitString = null;
+        if (startIndex != null && limit != null) {
+            limitString = startIndex + " , " + limit;
+        }
+        ArrayList list = new ArrayList();
+        Condition condition = new Condition(where);
+
+        Cursor cursor = database.query(tableName, null,
+                condition.whereClause, condition.whereArgs,null,null,
+                orderBy, limitString);
+        Object o = null;
+        if(cursor!=null){
+            while(cursor.moveToNext()){
+                try {
+                    o = where.getClass().newInstance();
+                    Iterator<String> iterator = cacheMap.keySet().iterator();
+                    while (iterator.hasNext()){
+                        String next = iterator.next();
+                        int columnIndex = cursor.getColumnIndex(next);
+                        Field field=(Field)cacheMap.get(next);
+                        Class type=field.getType();
+                        if(columnIndex!=-1){
+                            if(type==String.class){
+                                field.set(o,cursor.getString(columnIndex));
+                            }else if(type==Double.class){
+                                field.set(o,cursor.getDouble(columnIndex));
+                            }else if(type==Integer.class){
+                                field.set(o,cursor.getInt(columnIndex));
+                            }else if(type==Long.class){
+                                field.set(o,cursor.getLong(columnIndex));
+                            }else if(type==byte[].class){
+                                field.set(o,cursor.getBlob(columnIndex));
+                            }else{
+                                continue;
+                            }
+                        }
+                    }
+                    list.add(o);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+            cursor.close();
+        }
+
+        return list;
+    }
+
     private ContentValues getContentValues(HashMap<String, String> values) {
         ContentValues contentValues =new ContentValues();
         for (String key : values.keySet()) {
@@ -175,5 +253,34 @@ public class BaseDao<T> implements IBaseDao<T> {
             }
         }
         return map;
+    }
+
+ // 将传入的对象 遍历属性 将有赋值的字段组合成下面两个属性
+    class Condition{
+        public String whereClause; // "name=?"
+        public String[] whereArgs; // "new String[]{"hahh"}"
+
+        public Condition(T where){
+            //将表的列与实体类的值对应起来
+            HashMap<String, String> entityValues = getEntityValues(where);
+            // 计算到到whereClause 和 whereArgs
+            List<String> list = new ArrayList<>();
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("1==1");
+            Iterator<String> iterator = entityValues.keySet().iterator();
+            while(iterator.hasNext()){
+                String next = iterator.next();
+                if(next!=null){
+                    buffer.append(" and "+next+"=?");
+                    list.add(entityValues.get(next));
+                }
+            }
+            whereClause = buffer.toString();
+            String[] args = new String[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                args[i] = list.get(i);
+            }
+            whereArgs = args;
+        }
     }
 }
