@@ -9,6 +9,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.cbb.seeandroid.aop.AopTest1Activity
 import com.cbb.seeandroid.db.DBTestActivity
+import com.cbb.seeandroid.skin.SkinActivity
 import com.yanzhenjie.permission.Action
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.Rationale
@@ -23,18 +24,12 @@ class MainActivity : AppCompatActivity() {
         requestPermission()
     }
 
-    fun aop(view: View) {
-        startActivity(Intent(this@MainActivity,AopTest1Activity::class.java))
-    }
-    fun db(view: View) {
-        startActivity(Intent(this@MainActivity,DBTestActivity::class.java))
-    }
 
 
     private fun requestPermission() {
         AndPermission.with(this)
             .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ,Manifest.permission.READ_EXTERNAL_STORAGE) // 准备方法，和 okhttp 的拦截器一样，在请求权限之前先运行改方法，已经拥有权限不会触发该方法
+            ,Manifest.permission.READ_EXTERNAL_STORAGE)
             .rationale(Rationale { _: Context?, _: List<String?>?, executor: RequestExecutor ->
                 // 此处可以选择显示提示弹窗
                 executor.execute()
@@ -51,6 +46,16 @@ class MainActivity : AppCompatActivity() {
 
             })
             .start()
+    }
+
+    fun aop(view: View) {
+        startActivity(Intent(this@MainActivity,AopTest1Activity::class.java))
+    }
+    fun db(view: View) {
+        startActivity(Intent(this@MainActivity,DBTestActivity::class.java))
+    }
+    fun skin(view: View) {
+        startActivity(Intent(this@MainActivity,SkinActivity::class.java))
     }
 
 }
