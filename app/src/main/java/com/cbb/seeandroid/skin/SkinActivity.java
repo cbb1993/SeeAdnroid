@@ -12,7 +12,6 @@ import com.cbb.seeandroid.R;
 import com.cbb.skin.SkinManager;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 /**
  * Created by 坎坎.

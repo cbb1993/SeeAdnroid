@@ -2,11 +2,15 @@ package com.cbb.skin;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.cbb.skin.utils.SkinThemeUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -22,9 +26,20 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
     HashMap<Activity, SkinLayoutFactory> mLayoutFactoryMap = new HashMap<>();
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+        Log.e("-------","--------"+activity.getClass().getSimpleName());
+        /**
+         * 更新状态栏
+         */
+        SkinThemeUtils.updateStatusBar(activity);
+
+//        /**
+//         *  字体
+//         */
+//        Typeface typeface = SkinThemeUtils.getSkinTypeface(activity);
+//
         // 获得对应Activity的布局加载器
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
-        SkinLayoutFactory skinLayoutFactory = new SkinLayoutFactory();
+        SkinLayoutFactory skinLayoutFactory = new SkinLayoutFactory(activity);
 
         // setFactory2 时会判断 mFactorySet的值  mFactorySet为true的时候会报异常
         try {

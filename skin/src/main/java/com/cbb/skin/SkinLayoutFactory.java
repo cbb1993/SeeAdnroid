@@ -1,5 +1,6 @@
 package com.cbb.skin;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.cbb.skin.utils.SkinThemeUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -36,8 +39,10 @@ public class SkinLayoutFactory implements LayoutInflater.Factory2 , Observer {
 
     // 属性处理类
     SkinAttribute skinAttribute;
+    private Activity activity;
 
-    public SkinLayoutFactory() {
+    public SkinLayoutFactory(Activity activity) {
+        this.activity = activity;
         skinAttribute = new SkinAttribute();
     }
 
@@ -106,6 +111,7 @@ public class SkinLayoutFactory implements LayoutInflater.Factory2 , Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        SkinThemeUtils.updateStatusBar(activity);
         skinAttribute.applySkin();
     }
 }
