@@ -1,0 +1,12 @@
+<resources>
+    <declare-styleable name="group">
+        <attr name="progressBarWidth" format="dimension"/>
+        <attr name="progressBarHeight" format="dimension"/>
+        <attr name="textMarginBar" format="dimension"/>
+        <attr name="progressTextSize" format="dimension"/>
+        <attr name="progressStartColor" format="color"/>
+        <attr name="progressEndColor" format="color"/>
+        <attr name="progressBgColor" format="color"/>
+        <attr name="progressTextBg" format="reference"/>
+    </declare-styleable>
+</resources>
