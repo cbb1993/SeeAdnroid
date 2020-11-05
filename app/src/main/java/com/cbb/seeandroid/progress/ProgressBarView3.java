@@ -2,16 +2,12 @@ package com.cbb.seeandroid.progress;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -49,7 +45,9 @@ class ProgressBarView3 extends View {
     // 实际进度的区域
     private RectF curProgressRect;
     // 将实际等分 分为原来的5倍 这样绘制显示比较圆滑
-    private static final int COUNT = 4;
+    private static final int COUNT = 5;
+    // 每次绘制时间
+    private static final int TIME = 30;
     // 是否第一次
     private boolean isInit = true;
 
@@ -91,7 +89,7 @@ class ProgressBarView3 extends View {
     }
 
     public void setProgress(int p) {
-        if (p == totalProgress) {
+        if (p != 100 & p != 0 && p == totalProgress) {
             return;
         }
         if (p < min) {
@@ -113,7 +111,8 @@ class ProgressBarView3 extends View {
             return;
         }
         int cur = curProgress;
-        objectAnimator = ObjectAnimator.ofInt(this, "curProgress", cur, p * COUNT).setDuration(200);
+        int count = Math.abs(p*COUNT - cur);
+        objectAnimator = ObjectAnimator.ofInt(this, "curProgress", cur, p * COUNT).setDuration(count*TIME);
         objectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -136,7 +135,7 @@ class ProgressBarView3 extends View {
         curProgressRect.right = progressStepWidth * curProgress;
         // 绘制进度
         canvas.drawRoundRect(curProgressRect, progressRadius, progressRadius, curProgressPaint);
-        setMove((int) (curProgress / COUNT), curProgressRect.right);
+        setMove(curProgress / COUNT, curProgressRect.right);
     }
 
     private OnProgressListener onProgressListener;
