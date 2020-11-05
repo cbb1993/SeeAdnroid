@@ -16,7 +16,7 @@ import android.view.View;
  * 创建日期：2020/11/04 16:30
  * 描述：进度条 如果单独使用  需要在外面包裹一层父布局来固定位置
  */
-class ProgressBarView3 extends View {
+class ProgressBarView4 extends View {
     // progressbar 宽度
     private int mWidth = 0;
     // progressbar 高度
@@ -45,17 +45,15 @@ class ProgressBarView3 extends View {
     private float progressStepWidth;
     // 实际进度的区域
     private RectF curProgressRect;
-    // 将实际等分 分为原来的5倍 这样绘制显示比较圆滑
-    private static final int COUNT = 10;
-    // 每次绘制时间 一个百分比 分为COUNT段后绘制的时间
-    private static final int TIME = 2;
+    private static final int TIME = 50;
     // 是否第一次
     private boolean isInit = true;
-
     // 动画
     private ObjectAnimator objectAnimator;
+    // 已经移动的距离
+    private float moved = 0f;
 
-    public ProgressBarView3(Context context, int w, int h, int startColor, int endColor, int bgColor) {
+    public ProgressBarView4(Context context, int w, int h, int startColor, int endColor, int bgColor) {
         super(context);
         this.mWidth = w;
         this.mHeight = h;
@@ -82,6 +80,7 @@ class ProgressBarView3 extends View {
 
         progressBgRect = new RectF(0, 0, mWidth, mHeight);
         curProgressRect = new RectF(0, 0, 0, mHeight);
+        progressStepWidth = ((float) mWidth) / max;
     }
 
     // 返回设置进来的进度
@@ -100,31 +99,34 @@ class ProgressBarView3 extends View {
             p = max;
         }
         totalProgress = p;
-        progressStepWidth = ((float) mWidth) / (max * COUNT);
+
         if (objectAnimator != null) {
             objectAnimator.cancel();
         }
         //第一次直接绘制
         if (isInit) {
-            curProgress = p * COUNT;
+            curProgress = p;
             isInit = false;
+            moved = curProgress * progressStepWidth;
             invalidate();
             return;
         }
-        int cur = curProgress;
-        int count = Math.abs(p*COUNT - cur);
-        objectAnimator = ObjectAnimator.ofInt(this, "curProgress", cur, p * COUNT).setDuration(count*TIME);
+        float cur = moved;
+        float dest = p * progressStepWidth;
+        objectAnimator = ObjectAnimator.ofFloat(this, "moved", cur, dest ).setDuration(TIME);
         objectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
+                moved = Float.parseFloat(animation.getAnimatedValue().toString());
+                curProgress = (int) ( moved * 100 / mWidth);
                 invalidate();
             }
         });
         objectAnimator.start();
     }
 
-    private void setCurProgress(int curProgress) {
-        this.curProgress = curProgress;
+    private void setMoved(float moved) {
+        this.moved = moved;
     }
 
     @Override
@@ -133,10 +135,10 @@ class ProgressBarView3 extends View {
         // 绘制背景
         canvas.drawRoundRect(progressBgRect, progressRadius, progressRadius, mBgPaint);
         // 实际右边距离
-        curProgressRect.right = progressStepWidth * curProgress;
+        curProgressRect.right = moved;
         // 绘制进度
         canvas.drawRoundRect(curProgressRect, progressRadius, progressRadius, curProgressPaint);
-        setMove(curProgress / COUNT, curProgressRect.right);
+        setMove(curProgress, curProgressRect.right);
     }
 
     private OnProgressListener onProgressListener;

@@ -2,8 +2,11 @@ package com.cbb.seeandroid.progress;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.cbb.seeandroid.R;
@@ -28,11 +31,38 @@ public class ProgressActivity extends Activity {
         return i;
     }
 
+    private int p;
+
     public void setProgress1(View view) {
-        progress_bar.setProgress(progress_bar.getProgress() + getRound());
+        handler.removeCallbacksAndMessages(null);
+       handler.sendEmptyMessage(1);
     }
 
     public void setProgress2(View view) {
-        progress_bar.setProgress(progress_bar.getProgress() - getRound());
+        handler.removeCallbacksAndMessages(null);
+        handler.sendEmptyMessage(2);
     }
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    if(p!=100){
+                        p ++;
+                        progress_bar.setProgress(p);
+//                        sendEmptyMessageDelayed(1,500);
+                    }
+                    break;
+                case 2:
+                    if(p != 0){
+                        p --;
+                        progress_bar.setProgress(p);
+//                        sendEmptyMessageDelayed(2,500);
+                    }
+                    break;
+            }
+        }
+    };
 }

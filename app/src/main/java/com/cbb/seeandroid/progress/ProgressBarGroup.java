@@ -20,9 +20,9 @@ import com.cbb.seeandroid.R;
  * 描述：viewGroup 内部有上放进度文字 和 下方进度条
  */
 
-public class ProgressBarGroup extends RelativeLayout implements ProgressBarView3.OnProgressListener {
+public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4.OnProgressListener {
     // 进度条
-    private ProgressBarView3 progressBarView;
+    private ProgressBarView4 progressBarView;
     // 进度文字
     private TextView progressTextView;
     private StringBuilder stringBuilder;
@@ -110,7 +110,7 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView3
         super.onMeasure(widthMeasureSpec, i);
     }
     private void createProgressBar() {
-        progressBarView = new ProgressBarView3(getContext(),
+        progressBarView = new ProgressBarView4(getContext(),
                 progressBarWidth,
                 progressBarHeight,
                 startColor,
