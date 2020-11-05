@@ -5,4 +5,7 @@
     <color name="colorAccent">#D81B60</color>
 
     <color name="button_text">#f00</color>
+
+    <color name="progress_start">#f00</color>
+    <color name="progress_end">#1278FF</color>
 </resources>

@@ -9,6 +9,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.cbb.seeandroid.aop.AopTest1Activity
 import com.cbb.seeandroid.db.DBTestActivity
+import com.cbb.seeandroid.progress.ProgressActivity
 import com.cbb.seeandroid.skin.SkinActivity
 import com.yanzhenjie.permission.Action
 import com.yanzhenjie.permission.AndPermission
@@ -56,6 +57,9 @@ class MainActivity : AppCompatActivity() {
     }
     fun skin(view: View) {
         startActivity(Intent(this@MainActivity,SkinActivity::class.java))
+    }
+    fun progress(view: View) {
+        startActivity(Intent(this@MainActivity,ProgressActivity::class.java))
     }
 
 }

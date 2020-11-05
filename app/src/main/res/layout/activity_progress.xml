@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.cbb.seeandroid.progress.ProgressBarGroup
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:progressBarHeight="10dp"
+        app:progressBarWidth="300dp"
+        app:progressTextBg="@mipmap/progress_bar"
+        app:progressStartColor="@color/progress_start"
+        app:progressEndColor="@color/progress_end"
+        app:progressTextSize="12sp"
+        />
+
+    <Button
+        android:onClick="setProgress1"
+        android:text="+"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:onClick="setProgress2"
+        android:text="-"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
