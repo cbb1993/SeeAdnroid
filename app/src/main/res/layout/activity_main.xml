@@ -46,5 +46,19 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#999" />
+
+        <TextView
+            android:textColor="@color/button_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="progress"
+            android:padding="10dp"
+            android:text="progress" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#999" />
+
     </LinearLayout>
 </ScrollView>

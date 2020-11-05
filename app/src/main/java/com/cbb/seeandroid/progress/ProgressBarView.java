@@ -9,6 +9,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -34,12 +35,12 @@ class ProgressBarView extends View {
     private RectF progressBgRect;
     // 进度条圆角
     private float progressRadius;
-    // 当前进度
-    private int curProgress;
+    // 实际移动了的进度
+    private float curProgress;
     // 外部设置进来的进度
     private int totalProgress;
     // 需要位移的长度
-    private int moveLength;
+    private float moveLength;
     // 最大/最小
     private int max = 100;
     private int min = 0;
@@ -50,10 +51,25 @@ class ProgressBarView extends View {
     // 实际进度的区域
     private RectF curProgressRect;
     // 将实际等分 分为原来的5倍 这样绘制显示比较圆滑
-    private static final int COUNT = 5;
-    private int canvasMax = max * COUNT;
-    // 两次进度相差距离 ，如果差距过大  就一次性绘制完成 防止分段绘制导致绘制过慢
-    private int maxCurAndLast = 5;
+    private static final float COUNT_2 = 4;
+    private static final float COUNT_1_2 = 0.5f;
+    private static final float COUNT_1_4 = 0.25f;
+    private float canvasMax;
+
+    // 左移还是右移
+    private boolean isMoveLeft = false;
+
+    // 给设置的分级
+    // 给一次变化的progress分级 采取不同的绘制速度
+    // 正常按100段来算
+    enum Type {
+        progress1to2, // 将每一小段再分为COUNT次绘制
+        progress3to10, // 正常绘制每个小段
+        progress10to50, // 一次绘制2小段
+        progress50to100 // 一次绘制4小段
+    }
+
+    private Type type = Type.progress3to10;
 
     public ProgressBarView(Context context, int w, int h, int startColor, int endColor, int bgColor) {
         super(context);
@@ -62,7 +78,7 @@ class ProgressBarView extends View {
         this.startColor = startColor;
         this.endColor = endColor;
         this.mBgPaintColor = bgColor;
-        progressRadius  = mHeight / 2;
+        progressRadius = mHeight / 2;
         initView();
     }
 
@@ -82,12 +98,10 @@ class ProgressBarView extends View {
 
         progressBgRect = new RectF(0, 0, mWidth, mHeight);
         curProgressRect = new RectF(0, 0, 0, mHeight);
-        progressStepWidth = ((float) mWidth) / (canvasMax - min);
-
     }
 
     // 返回设置进来的进度
-    public int getCurProgress() {
+    public int getProgress() {
         return totalProgress;
     }
 
@@ -102,26 +116,57 @@ class ProgressBarView extends View {
             p = max;
         }
         handler.removeMessages(1);
-        // 如果当前进度差距过大，直接跳过动画
-        if (p - totalProgress >= maxCurAndLast) {
-            // 移动一次 直接到对应位置
-            moveLength = 1;
-            curProgress = p * COUNT - 1;
-        } else if (p - totalProgress <= -maxCurAndLast) {
-            // 移动一次 直接到对应位置
-            moveLength = -1;
-            curProgress = p * COUNT + 1;
+        // 实际已经移动到什么地方了
+        curProgress = getCurProgress();
+        // 左移还是右移
+        isMoveLeft = p - curProgress < 0;
+        // 这次传入和上次实际移动的相差多少
+        float absP = Math.abs(p - curProgress);
+        if (absP < 3) {
+            type = Type.progress1to2;
+            canvasMax = max * COUNT_2;
+            moveLength = absP * COUNT_2;
+            curProgress = curProgress * COUNT_2;
+        } else if (absP < 10) {
+            type = Type.progress3to10;
+            canvasMax = max;
+            moveLength = absP;
+            curProgress = curProgress;
+        } else if (absP < 50) {
+            type = Type.progress10to50;
+            canvasMax = max * COUNT_1_2;
+            moveLength = absP * COUNT_1_2;
+            curProgress = curProgress * COUNT_1_2;
         } else {
-            // 设置换算的进度
-            int canvasP = p * COUNT;
-            // 算出这次位移大小
-            moveLength = canvasP - curProgress;
+            type = Type.progress50to100;
+            canvasMax = max * COUNT_1_4;
+            moveLength = absP * COUNT_1_4;
+            curProgress = curProgress * COUNT_1_4;
         }
-        // 记录实际设置的进度
+        if (isMoveLeft) {
+            moveLength = - moveLength;
+        }
+        progressStepWidth =  mWidth / (canvasMax - min);
+        // 保存上次实际传入的进度
         totalProgress = p;
+        // 记录实际设置的进度
         if (moveLength != 0) {
             handler.sendEmptyMessage(1);
         }
+    }
+
+    private float getCurProgress() {
+        switch (type) {
+            case progress1to2:
+                return curProgress / COUNT_2;
+            case progress3to10:
+                return curProgress;
+            case progress10to50:
+                return curProgress / COUNT_1_2;
+            case progress50to100:
+                return curProgress / COUNT_1_4;
+        }
+        return curProgress;
     }
 
     @Override
@@ -129,25 +174,53 @@ class ProgressBarView extends View {
         super.onDraw(canvas);
         // 绘制背景
         canvas.drawRoundRect(progressBgRect, progressRadius, progressRadius, mBgPaint);
-        // 计算位移 每次移动一位
-        if (moveLength < 0) {
-            moveLength++;
-            curProgress--;
-        } else if (moveLength > 0) {
-            moveLength--;
-            curProgress++;
+        // 移动可能会有小数遗留
+        if (moveLength != 0) {
+            if (Math.abs(moveLength) < 1) {
+                if (moveLength < 0) {
+                    curProgress -= moveLength;
+                } else if (moveLength > 0) {
+                    curProgress += moveLength;
+                }
+                moveLength = 0;
+            } else {
+                // 计算位移 每次移动一位
+                if (moveLength < 0) {
+                    moveLength++;
+                    curProgress--;
+                } else if (moveLength > 0) {
+                    moveLength--;
+                    curProgress++;
+                }
+            }
         }
+
         // 实际右边距离
         curProgressRect.right = progressStepWidth * curProgress;
         // 绘制进度
         canvas.drawRoundRect(curProgressRect, progressRadius, progressRadius, curProgressPaint);
         // 设置回调
-        setMove(curProgress / COUNT, curProgressRect.right);
+        switch (type) {
+            case progress1to2:
+                setMove((int) (curProgress / COUNT_2), curProgressRect.right);
+                break;
+            case progress3to10:
+                setMove((int) curProgress, curProgressRect.right);
+                break;
+            case progress10to50:
+                setMove((int) (curProgress / COUNT_1_2), curProgressRect.right);
+                break;
+            case progress50to100:
+                setMove((int) (curProgress / COUNT_1_4), curProgressRect.right);
+                break;
+        }
+
         // 继续重绘
         if (moveLength != 0) {
             handler.sendEmptyMessageDelayed(1, moveTime);
         }
     }
+
     // 定时重绘
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -163,11 +236,13 @@ class ProgressBarView extends View {
     public void setOnProgressListener(OnProgressListener onProgressListener) {
         this.onProgressListener = onProgressListener;
     }
+
     private void setMove(int p, float left) {
         if (onProgressListener != null) {
             onProgressListener.move(p, left);
         }
     }
+
     // 返回当前进度 和 移动距离
     public interface OnProgressListener {
         void move(int p, float left);

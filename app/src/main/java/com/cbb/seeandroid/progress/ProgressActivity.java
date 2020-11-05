@@ -23,11 +23,16 @@ public class ProgressActivity extends Activity {
         progress_bar = findViewById(R.id.progress_bar);
     }
 
+    public int getRound() {
+        int i = (int) (Math.random() * 100);
+        return i;
+    }
+
     public void setProgress1(View view) {
-        progress_bar.setProgress(progress_bar.getProgress() + 3);
+        progress_bar.setProgress(progress_bar.getProgress() + getRound());
     }
 
     public void setProgress2(View view) {
-        progress_bar.setProgress(progress_bar.getProgress() - 3);
+        progress_bar.setProgress(progress_bar.getProgress() - getRound());
     }
 }

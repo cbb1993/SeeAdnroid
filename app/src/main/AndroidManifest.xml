@@ -22,6 +22,7 @@
         <activity android:name=".aop.AopTest1Activity" />
         <activity android:name=".db.DBTestActivity" />
         <activity android:name=".skin.SkinActivity" />
+        <activity android:name=".progress.ProgressActivity" />
     </application>
 
 </manifest>

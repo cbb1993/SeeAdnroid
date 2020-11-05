@@ -134,7 +134,7 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView.
     }
 
     public int getProgress() {
-        return progressBarView.getCurProgress();
+        return progressBarView.getProgress();
     }
 
     private void createTextView() {

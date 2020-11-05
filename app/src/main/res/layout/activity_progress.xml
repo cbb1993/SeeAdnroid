@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:progressBarHeight="10dp"
-        app:progressBarWidth="300dp"
+        app:progressBarWidth="400dp"
         app:progressTextBg="@mipmap/progress_bar"
         app:progressStartColor="@color/progress_start"
         app:progressEndColor="@color/progress_end"
