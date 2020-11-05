@@ -58,6 +58,8 @@ class ProgressBarView extends View {
 
     // 左移还是右移
     private boolean isMoveLeft = false;
+    // 是否是第一次传入
+    private boolean isInit = true;
 
     // 给设置的分级
     // 给一次变化的progress分级 采取不同的绘制速度
@@ -116,43 +118,52 @@ class ProgressBarView extends View {
             p = max;
         }
         handler.removeMessages(1);
-        // 实际已经移动到什么地方了
-        curProgress = getCurProgress();
-        // 左移还是右移
-        isMoveLeft = p - curProgress < 0;
-        // 这次传入和上次实际移动的相差多少
-        float absP = Math.abs(p - curProgress);
-        if (absP < 3) {
-            type = Type.progress1to2;
-            canvasMax = max * COUNT_2;
-            moveLength = absP * COUNT_2;
-            curProgress = curProgress * COUNT_2;
-        } else if (absP < 10) {
+        if (isInit) {
+            // 第一次 直接绘制到传入的地方
             type = Type.progress3to10;
             canvasMax = max;
-            moveLength = absP;
-            curProgress = curProgress;
-        } else if (absP < 50) {
-            type = Type.progress10to50;
-            canvasMax = max * COUNT_1_2;
-            moveLength = absP * COUNT_1_2;
-            curProgress = curProgress * COUNT_1_2;
-        } else {
-            type = Type.progress50to100;
-            canvasMax = max * COUNT_1_4;
-            moveLength = absP * COUNT_1_4;
-            curProgress = curProgress * COUNT_1_4;
+            moveLength = 1;
+            curProgress = p - 1;
+        }else {
+            // 实际已经移动到什么地方了
+            curProgress = getCurProgress();
+            // 左移还是右移
+            isMoveLeft = p - curProgress < 0;
+            // 这次传入和上次实际移动的相差多少
+            float absP = Math.abs(p - curProgress);
+            if (absP < 3) {
+                type = Type.progress1to2;
+                canvasMax = max * COUNT_2;
+                moveLength = absP * COUNT_2;
+                curProgress = curProgress * COUNT_2;
+            } else if (absP < 10) {
+                type = Type.progress3to10;
+                canvasMax = max;
+                moveLength = absP;
+                curProgress = curProgress;
+            } else if (absP < 50) {
+                type = Type.progress10to50;
+                canvasMax = max * COUNT_1_2;
+                moveLength = absP * COUNT_1_2;
+                curProgress = curProgress * COUNT_1_2;
+            } else {
+                type = Type.progress50to100;
+                canvasMax = max * COUNT_1_4;
+                moveLength = absP * COUNT_1_4;
+                curProgress = curProgress * COUNT_1_4;
+            }
+            if (isMoveLeft) {
+                moveLength = -moveLength;
+            }
         }
-        if (isMoveLeft) {
-            moveLength = - moveLength;
-        }
-        progressStepWidth =  mWidth / (canvasMax - min);
+        progressStepWidth = mWidth / (canvasMax - min);
         // 保存上次实际传入的进度
         totalProgress = p;
         // 记录实际设置的进度
         if (moveLength != 0) {
             handler.sendEmptyMessage(1);
         }
+        isInit = false;
     }
 
     private float getCurProgress() {
