@@ -1,5 +1,6 @@
 package com.cbb.seeandroid.progress;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -52,8 +53,8 @@ class ProgressBarView extends View {
     private RectF curProgressRect;
     // 将实际等分 分为原来的5倍 这样绘制显示比较圆滑
     private static final float COUNT_2 = 4;
-    private static final float COUNT_1_2 = 0.5f;
-    private static final float COUNT_1_4 = 0.25f;
+    private static final float COUNT_1_2 = 0.8f;
+    private static final float COUNT_1_4 = 0.5f;
     private float canvasMax;
 
     // 左移还是右移
@@ -164,6 +165,7 @@ class ProgressBarView extends View {
             handler.sendEmptyMessage(1);
         }
         isInit = false;
+
     }
 
     private float getCurProgress() {
@@ -253,7 +255,6 @@ class ProgressBarView extends View {
             onProgressListener.move(p, left);
         }
     }
-
     // 返回当前进度 和 移动距离
     public interface OnProgressListener {
         void move(int p, float left);
