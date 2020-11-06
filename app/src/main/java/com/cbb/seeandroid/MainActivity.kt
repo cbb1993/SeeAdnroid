@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity() {
         requestPermission()
     }
 
-
-
     private fun requestPermission() {
         AndPermission.with(this)
             .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE

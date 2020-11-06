@@ -7,12 +7,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cbb.seeandroid.R;
-
 
 /**
  * @author chenbinbin
@@ -20,35 +20,47 @@ import com.cbb.seeandroid.R;
  * 描述：viewGroup 内部有上放进度文字 和 下方进度条
  */
 
-public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4.OnProgressListener {
+public class ProgressBarGroup extends RelativeLayout implements ProgressBarView.OnProgressListener {
     // 进度条
-    private ProgressBarView4 progressBarView;
+    private ProgressBarView progressBarView;
     // 进度文字
     private TextView progressTextView;
     private StringBuilder stringBuilder;
     // 进度条和文字之间的距离
-    private int marginText = 10;
+    private int marginText;
     // 文字距离左边界初始距离
     private float progressTextViewLeft;
     // 进度条宽高
-    private int progressBarHeight = 20;
-    private int progressBarWidth = 800;
+    private int progressBarHeight;
+    private int progressBarWidth;
     // 进度条渐变色
-    private int startColor = Color.BLUE;
-    private int endColor = Color.GREEN;
+    private int startColor;
+    private int endColor;
     // 进度条底部颜色
     private int progressBarBgColor = Color.GRAY;
     // 进度条文字背景
     private int textBgRes;
     // 进度条文字大小
-    private int textSize = 14;
+    private int textSize;
     // 进度条view外部view
     private RelativeLayout textGroup;
     // 整个view实际需要展示的高度
     private int viewHeight;
+    // 父布局 做超出裁剪处理
+    private ViewGroup parent;
 
     public ProgressBarGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
+        // 默认初始化
+        marginText = dimen2px(R.dimen.download_dialog_progress_text_margin);
+        progressBarHeight = dimen2px(R.dimen.download_dialog_progress_h);
+        progressBarWidth = dimen2px(R.dimen.download_dialog_progress_w);
+        textSize = dimen2px(R.dimen.download_dialog_progress_text_size);
+        textSize = px2sp(getContext(), textSize);
+        textBgRes = R.mipmap.progress_bar;
+        startColor = getResources().getColor(R.color.progress_start);
+        endColor = getResources().getColor(R.color.progress_end);
+
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.group);
         int indexCount = a.getIndexCount();
         for (int i = 0; i < indexCount; i++) {
@@ -71,10 +83,10 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4
                     break;
                 case R.styleable.group_progressTextSize:
                     float f = a.getDimension(index, textSize);
-                    textSize =  px2sp(getContext(),f);
+                    textSize = px2sp(getContext(), f);
                     break;
                 case R.styleable.group_progressTextBg:
-                    textBgRes = a.getResourceId(index, 0);
+                    textBgRes = a.getResourceId(index, textBgRes);
                     break;
                 case R.styleable.group_progressBgColor:
                     progressBarBgColor = a.getColor(index, progressBarBgColor);
@@ -93,6 +105,9 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4
         return (int) (pxValue / fontScale + 0.5f);
     }
 
+    private int dimen2px(int dimen) {
+        return getResources().getDimensionPixelSize(dimen);
+    }
 
     @Override
     protected void onFinishInflate() {
@@ -105,17 +120,25 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if(parent == null){
+            parent = (ViewGroup) getParent();
+            if(parent!=null){
+                parent.setClipChildren(false);
+            }
+        }
         int mode = MeasureSpec.getMode(heightMeasureSpec);
-        int i = MeasureSpec.makeMeasureSpec(viewHeight,mode);
+        int i = MeasureSpec.makeMeasureSpec(viewHeight, mode);
         super.onMeasure(widthMeasureSpec, i);
     }
+
     private void createProgressBar() {
-        progressBarView = new ProgressBarView4(getContext(),
+        progressBarView = new ProgressBarView(getContext(),
                 progressBarWidth,
                 progressBarHeight,
                 startColor,
                 endColor,
                 progressBarBgColor);
+
         progressBarView.setId(View.generateViewId());
         LayoutParams lp = new LayoutParams(progressBarWidth, progressBarHeight);
         lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -175,7 +198,12 @@ public class ProgressBarGroup extends RelativeLayout implements ProgressBarView4
         stringBuilder.append(p);
         stringBuilder.append("%");
         progressTextView.setText(stringBuilder);
-        textGroup.setTranslationX(progressTextViewLeft+left);
+        textGroup.setTranslationX(progressTextViewLeft + left);
+        if (p == 0 || p == 100) {
+            textGroup.setVisibility(GONE);
+        } else {
+            textGroup.setVisibility(VISIBLE);
+        }
     }
 
 }
