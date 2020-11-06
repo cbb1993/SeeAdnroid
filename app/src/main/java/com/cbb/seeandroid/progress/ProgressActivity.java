@@ -27,7 +27,7 @@ public class ProgressActivity extends Activity {
     }
 
     public int getRound() {
-        int i = (int) (Math.random() * 100);
+        int i = (int) (Math.random() * 30);
         return i;
     }
 
@@ -49,18 +49,12 @@ public class ProgressActivity extends Activity {
             super.handleMessage(msg);
             switch (msg.what){
                 case 1:
-                    if(p!=100){
-                        p ++;
-                        progress_bar.setProgress(p);
-//                        sendEmptyMessageDelayed(1,500);
-                    }
+                        progress_bar.setProgress(progress_bar.getProgress() + getRound());
+//                        sendEmptyMessageDelayed(1,200);
                     break;
                 case 2:
-                    if(p != 0){
-                        p --;
-                        progress_bar.setProgress(p);
-//                        sendEmptyMessageDelayed(2,500);
-                    }
+                        progress_bar.setProgress(progress_bar.getProgress() - getRound());
+//                        sendEmptyMessageDelayed(2,200);
                     break;
             }
         }

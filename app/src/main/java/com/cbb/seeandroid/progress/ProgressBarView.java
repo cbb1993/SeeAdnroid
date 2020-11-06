@@ -115,7 +115,7 @@ class ProgressBarView extends View {
         float cur = moved;
         // 目标位置
         float dest = p * progressStepWidth;
-        int cur2destP = p - curProgress;
+        int cur2destP = Math.abs(p - curProgress);
         objectAnimator = ObjectAnimator.ofFloat(this, "moved", cur, dest).setDuration(cur2destP * TIME);
         objectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
